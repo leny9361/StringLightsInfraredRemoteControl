@@ -1,25 +1,11 @@
-#include <STC8G.H>
-#include <intrins.h>
-							   
-extern void Init_I2C(void);	   
-extern void UnInit_I2C(void);
-extern void I2CStart();
-extern void I2CStop();
-extern unsigned char I2CReadACK();
-extern unsigned char I2CReadNAK();
-extern bit I2CWrite(unsigned char dat);	 
-extern void OD();
-extern void Delay20ms();
-extern void Delay100ms();
-extern void Delay3000ms();	
-extern void DelaySec(unsigned char sec);	
+#include "ALS_PS.h"
 
 unsigned char ReadDat(unsigned char addr);
 
 void PS_TurnOn()
 {
 	bit ack = 0;
-	Init_I2C();
+	Init_I2C(0xFF);;
 	Delay20ms();	
 	I2CStart();
 	ack = I2CWrite(0x46); 
@@ -40,7 +26,7 @@ void PS_TurnOn()
 void PS_TurnOff()
 {		   
 	bit ack = 0;	
-	Init_I2C();
+	Init_I2C(0xFF);;
 	Delay20ms();
 	I2CStart();
 	ack = I2CWrite(0x46); 
@@ -54,7 +40,7 @@ unsigned int Read_PS_Dat()
 	bit ack;
 	unsigned char ret_dat_0=0xFF;  
 	unsigned char ret_dat_1=0xFF;  	
-	Init_I2C();
+	Init_I2C(0xFF);;
 	Delay20ms();
 	ret_dat_0 = ReadDat(0x8D);	//PS_Data_0
 	//I2CStop();	
@@ -76,16 +62,16 @@ void ALS_TurnOn(unsigned char gain)
 	Gain96: 0b111<<2	7	0.01~600   	 
 	*/
 	bit ack = 0;   
-	Init_I2C();
+	Init_I2C(0xFF);;
 	Delay20ms();	
-	//²âÁ¿Ä£Ê½
+	//æµ‹é‡æ¨¡å¼
 	I2CStart();
 	ack = I2CWrite(0x46); 
 	ack = I2CWrite(0x80); 
 	ack = I2CWrite(gain << 2 | 0x01);
 	I2CStop();  
 
-	//²âÁ¿ËÙÂÊ
+	//æµ‹é‡é€ŸçŽ‡
 	I2CStart();			 
 	ack = I2CWrite(0x46); 
 	ack = I2CWrite(0x85); 
@@ -97,7 +83,7 @@ void ALS_TurnOn(unsigned char gain)
 void ALS_TurnOff()
 {
 	bit ack = 0;	 
-	Init_I2C();
+	Init_I2C(0xFF);;
 	Delay20ms();	
 	I2CStart();
 	ack = I2CWrite(0x46); 
@@ -112,7 +98,7 @@ unsigned int Read_ALS_CH1_Dat()
 	//88 89 8A 8B
 	unsigned char ret_dat_ch1_0=0xFF;  
 	unsigned char ret_dat_ch1_1=0xFF; 	
-	Init_I2C();
+	Init_I2C(0xFF);;
 	Delay20ms(); 	
 	//CH1_0
 	ret_dat_ch1_0 = ReadDat(0x88);
@@ -128,7 +114,7 @@ unsigned int Read_ALS_CH0_Dat()
 	//88 89 8A 8B
 	unsigned char ret_dat_ch0_0=0xFF;  
 	unsigned char ret_dat_ch0_1=0xFF; 
-	Init_I2C();
+	Init_I2C(0xFF);;
 	Delay20ms();
 	//CH0_0 
 	ret_dat_ch0_0 = ReadDat(0x8A); 	
@@ -161,10 +147,10 @@ unsigned char ALS_DataReady()
 } 
 unsigned char ReadDat(unsigned char addr)
 {
-	//Ð´¼Ä´æÆ÷µØÖ·£¬¶ÁÈ¡Êý¾Ý  
+	//å†™å¯„å­˜å™¨åœ°å€ï¼Œè¯»å–æ•°æ®  
 	bit ack;
 	unsigned char dat_ret = 0x00;	
-	Init_I2C();
+	Init_I2C(0xFF);;
 	I2CStart();
 	ack = I2CWrite(0x46); 
 	ack = I2CWrite(addr); 

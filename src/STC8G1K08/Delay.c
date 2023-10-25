@@ -1,5 +1,4 @@
-#include <STC8G.H>
-#include <intrins.h>
+#include "Delay.h"
 
 void Delay20ms()		//@11.0592MHz
 {

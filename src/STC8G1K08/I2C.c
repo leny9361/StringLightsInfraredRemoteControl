@@ -1,4 +1,4 @@
-#include <STC8G.H>
+#include "I2C.h"
 
 void OD()
 {
@@ -10,11 +10,11 @@ void UnOD()
 	P1M0 &= 0xCF;
 	P1M1 &= 0xCF;	
 }
-void Init_I2C(void)
+void Init_I2C(unsigned char speed)
 {
 	OD();
 	P_SW2 = 0x80;
-	I2CCFG |= 0xFF;	
+	I2CCFG |= (0xC0 | (speed & 0x3F));
 }
 void UnInit_I2C(void)
 {
@@ -50,16 +50,16 @@ void SendNAK(void)
 	Wait();		
 }
 
-/* ²úÉú×ÜÏßÍ£Ö¹ĞÅºÅ */
+/* äº§ç”Ÿæ€»çº¿åœæ­¢ä¿¡å· */
 void I2CStop()
 {
 	I2CMSCR = 0x06;
 	Wait();	
 }
-/* I2C×ÜÏßĞ´²Ù×÷£¬dat-´ıĞ´Èë×Ö½Ú£¬·µ»ØÖµ-´Ó»úÓ¦´ğÎ»µÄÖµ */
+/* I2Cæ€»çº¿å†™æ“ä½œï¼Œdat-å¾…å†™å…¥å­—èŠ‚ï¼Œè¿”å›å€¼-ä»æœºåº”ç­”ä½çš„å€¼ */
 bit I2CWrite(unsigned char dat)
 {
-    bit ack = 0;  //ÓÃÓÚÔİ´æÓ¦´ğÎ»µÄÖµ
+    bit ack = 0;  //ç”¨äºæš‚å­˜åº”ç­”ä½çš„å€¼
     I2CTXD = dat;
 	I2CMSCR = 0x02;
 	Wait();
@@ -74,7 +74,7 @@ unsigned char RecvData(void)
 	Wait();
 	return I2CRXD;
 }
-/* I2C×ÜÏß¶Á²Ù×÷£¬²¢·¢ËÍ·ÇÓ¦´ğĞÅºÅ£¬·µ»ØÖµ-¶Áµ½µÄ×Ö½Ú */
+/* I2Cæ€»çº¿è¯»æ“ä½œï¼Œå¹¶å‘é€éåº”ç­”ä¿¡å·ï¼Œè¿”å›å€¼-è¯»åˆ°çš„å­—èŠ‚ */
 unsigned char I2CReadNAK()
 {
     unsigned char dat;
@@ -82,7 +82,7 @@ unsigned char I2CReadNAK()
 	SendNAK();
     return dat;
 }
-/* I2C×ÜÏß¶Á²Ù×÷£¬²¢·¢ËÍÓ¦´ğĞÅºÅ£¬·µ»ØÖµ-¶Áµ½µÄ×Ö½Ú */
+/* I2Cæ€»çº¿è¯»æ“ä½œï¼Œå¹¶å‘é€åº”ç­”ä¿¡å·ï¼Œè¿”å›å€¼-è¯»åˆ°çš„å­—èŠ‚ */
 unsigned char I2CReadACK()
 {
     unsigned char dat;

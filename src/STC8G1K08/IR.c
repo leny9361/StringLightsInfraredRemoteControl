@@ -1,7 +1,5 @@
-#include <STC8G.H>
-#include <intrins.h>
-/* IR Code Begin */	   
-sbit IR_IO = P1^0; 								 
+#include "IR.h"
+/* IR Code Begin */							 
 void InitIR();
 void SendCode(unsigned char iRCode); 
 void Normal_Code(unsigned char *ircode,unsigned char len);	
@@ -29,7 +27,7 @@ void IR_PS(unsigned int ir_code)
 void IR_ALS(unsigned long ir_code)
 {	 
 	unsigned char ircode[5];   
-    InitIR();	
+	InitIR();	
 	ircode[0] = 0x02;	 
 	ircode[1] = ir_code >> 24;
 	ircode[2] = (ir_code & 0xFF0000) >> 16;
@@ -45,18 +43,18 @@ void enTimer0(bit e)
 }
 void InitIR()
 {			
-	//T2��ʱ��
- 	//T2L = 0xCF;		//���ö�ʱ��ʼֵ
-	//T2H = 0xE7;		//���ö�ʱ��ʼֵ
+	//T2定时器
+ 	//T2L = 0xCF;		//设置定时初始值
+	//T2H = 0xE7;		//设置定时初始值
 	//Delay3000ms();
 	//Delay3000ms();
 	rst = 2;
-	AUXR |= 0x80;  //������ʱ��0����ʱ��1��1T�ٶ�
+	AUXR |= 0x80;  //开启定时器0、定时器1的1T速度
 	IR_IO = 1;
-	//ʹ�ö�ʱ���ж�1����38K��38.4615K�� 
-	TMOD = 0x12;		//ģʽ���ã���ʱ��0���Զ���װ����ʱ��1��16bitģʽ
-	TL0 = 0x9F;		//���ö�ʱ��ʼֵ
-	TH0 = 0x9F;		//���ö�ʱ��ʼֵ
+	//使用定时器中断1产生38K（38.4615K） 
+	TMOD = 0x12;		//模式设置：定时器0：自动重装，定时器1：16bit模式
+	TL0 = 0x9F;		//设置定时初始值
+	TH0 = 0x9F;		//设置定时初始值
 	TR0 = 1;
 	EA =1;
 	ET0 = 0;

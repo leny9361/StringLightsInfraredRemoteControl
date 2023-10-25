@@ -1,15 +1,15 @@
-#include <STC8G.H>
-#include <intrins.h>	
+#include "adc.h"
+
 #define ADCTIM  (*(unsigned char volatile xdata *)0xfea8)
 
 void ADCInit()
 {
     P_SW2 |= 0x80;
-    ADCTIM = 0x3F;                              //ÉèÖÃADCÄÚ²¿Ê±Ğò
+    ADCTIM = 0x3F;                              //è®¾ç½®ADCå†…éƒ¨æ—¶åº
     P_SW2 &= 0x7F;
 
-    ADCCFG = 0x2F;                              //ÉèÖÃADCÊ±ÖÓÎªÏµÍ³Ê±ÖÓ/2/16
-    ADC_CONTR = 0x8F;                           //Ê¹ÄÜADCÄ£¿é,²¢Ñ¡ÔñµÚ15Í¨µÀ
+    ADCCFG = 0x2F;                              //è®¾ç½®ADCæ—¶é’Ÿä¸ºç³»ç»Ÿæ—¶é’Ÿ/2/16
+    ADC_CONTR = 0x8F;                           //ä½¿èƒ½ADCæ¨¡å—,å¹¶é€‰æ‹©ç¬¬15é€šé“
 }
 
 void ADCDisable()
@@ -20,27 +20,27 @@ unsigned int ADCRead()
 {
     unsigned int res;
 
-    ADC_CONTR |= 0x40;                          //Æô¶¯AD×ª»»
+    ADC_CONTR |= 0x40;                          //å¯åŠ¨ADè½¬æ¢
     _nop_();
     _nop_();
-    while (!(ADC_CONTR & 0x20));                //²éÑ¯ADCÍê³É±êÖ¾
-    ADC_CONTR &= ~0x20;                         //ÇåÍê³É±êÖ¾
-    res = (ADC_RES << 8) | ADC_RESL;            //¶ÁÈ¡ADC½á¹û
+    while (!(ADC_CONTR & 0x20));                //æŸ¥è¯¢ADCå®Œæˆæ ‡å¿—
+    ADC_CONTR &= ~0x20;                         //æ¸…å®Œæˆæ ‡å¿—
+    res = (ADC_RES << 8) | ADC_RESL;            //è¯»å–ADCç»“æœ
 
     return res;
 }
 
 unsigned int GetVccVoltage()
 {
-	unsigned int *BGV;                                       //ÄÚ²¿1.19V²Î¿¼ĞÅºÅÔ´Öµ´æ·ÅÔÚidataÖĞ
+	int *BGV;                                       //å†…éƒ¨1.19Vå‚è€ƒä¿¡å·æºå€¼å­˜æ”¾åœ¨idataä¸­
 	unsigned char i = 0;
 	unsigned res = 0,vcc = 0;
 	BGV = (int idata *)0xef;
 	for (i=0; i<8; i++)
 	{
-		res += ADCRead();                       //¶ÁÈ¡8´ÎÊı¾İ
+		res += ADCRead();                       //è¯»å–8æ¬¡æ•°æ®
 	}
-	res >>= 3;                                  //È¡Æ½¾ùÖµ 	
-	vcc = (int)(1024L * *BGV / res);            //(10Î»ADCËã·¨)¼ÆËãVREF¹Ü½ÅµçÑ¹,¼´µç³ØµçÑ¹
+	res >>= 3;                                  //å–å¹³å‡å€¼ 	
+	vcc = (int)(1024L * *BGV / res);            //(10ä½ADCç®—æ³•)è®¡ç®—VREFç®¡è„šç”µå‹,å³ç”µæ± ç”µå‹
 	return vcc;
 }
