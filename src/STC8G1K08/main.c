@@ -15,6 +15,8 @@ void PS_Get();
 bit I2CAddresing(unsigned char addr); 
 void SetPowerDownTimerReg(unsigned int ms);
 
+code char MODES[6] = {0x44,0x07,0x09,0x0D,0x5E,0x46};
+
 void main()
 {
 	bit ack;
@@ -45,6 +47,7 @@ void main()
 	unsigned long Trun_On_Top = 0x044803CF;//((unsigned long)5358 << 16 | (unsigned long)8458);
 	unsigned long Trun_Off_Bottom = 0x07B20564;//((unsigned long)22432 << 16 | (unsigned long)65529);
 	unsigned long Lux = 0x00;
+	unsigned char modeIndex = 0;
 	//STC8G 默认高阻态模式
 	P1M0 = 0x00;
 	P1M1 = 0x00;  
@@ -73,19 +76,19 @@ void main()
 	*/
 	//Delay500ms();//上电等待ALS传感器准备就绪，手册写最小100ms
 	//WKTCL = 0xFF;
-	//WKTCH = 0x8C;	
+	//WKTCH = 0x8C;
 	//所有指示灯亮一次 BEGIN
-	BATLOW_LED = 0;	
+	BATLOW_LED = 0;
 	WORK_LED = 0;
 	HB_LED = 0;
 	Delay500ms(); //上电等待ALS传感器准备就绪，手册写最小100ms
-	BATLOW_LED = 1;	
+	BATLOW_LED = 1;
 	WORK_LED = 1;
 	HB_LED = 1;
 	//所有指示灯亮一次 END
 	while(1)
 	{
-		if(!SleepCnt)	
+		if(!SleepCnt)
 		{
 			ALS_TurnOn(0x07);
 			Delay100ms();
@@ -98,12 +101,13 @@ void main()
 				
 				if(Lux > Trun_Off_Bottom && TrunOffCnt)
 				{
-					//关机	
+					//关机
 					WORK_LED = 0;
 					IR_Nec(0x47); 
 					WORK_LED = 1;
 					TrunOnCnt = 2;
 					TrunOffCnt--;
+					modeIndex++;
 				}
 				else if(Lux < Trun_On_Top && TrunOnCnt)
 				{
@@ -112,17 +116,18 @@ void main()
 					IR_Nec(0x45);
 					WORK_LED = 1;
 					Delay100ms();
-					IR_Nec(0x5E);
+					//IR_Nec(0x5E);
+					IR_Nec(MODES[modeIndex % 6]);
 					TrunOffCnt = 2;
 					TrunOnCnt--;
 				}
-			}  	 		   
+			}
 			SleepCnt = 10;
 			ALS_TurnOff();
 		}
 		
 		if(!cnt || PDModel)
-		{			   
+		{
 			if(SleepCnt % 2 == 0 || PDModel)
 			{
 				if(!PDModel)
@@ -160,7 +165,16 @@ void main()
 				ADCDisable();
 				if(Vcc < 2100)
 				{
+					//低电压指示 LED闪烁
+					Delay100ms();
 					BATLOW_LED = 0;
+					Delay100ms();
+					BATLOW_LED = 1;
+          
+					Delay100ms();
+					BATLOW_LED = 0;
+					Delay100ms();
+					BATLOW_LED = 1;
 				}
 				else
 				{
